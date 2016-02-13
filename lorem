@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'commander'
+require 'open-uri'
+
+class Lorem
+  include Commander::Methods
+
+  def run
+    program :name, 'Lorem'
+    program :version, '0.0.1'
+    program :description, 'Generates various Lorem documents.'
+
+    command :pixel do |c|
+      c.syntax = 'lorem pixel'
+      c.description = 'Downloads pictures from LoremPixel.com'
+      c.action do |args, options|
+        type = choose("What kind of images ?", *image_types)
+        number = ask("How many ?") { |n| n.default = '5' }
+        width = ask("Width ?") { |w| w.default = '300' }
+        height = ask("Height ?") { |h| h.default = '300' }
+        print "Fetching #{number} LoremPixel #{type} pictures ... "
+        number.to_i.times do |i|
+          File.open("#{type}-#{i}.jpg", 'wb') do |f|
+            f << open("http://lorempixel.com/#{width}/#{height}/#{type}").read
+          end
+          print '.'
+        end
+        puts
+        puts "Done !"
+      end
+    end
+
+    run!
+  end
+
+private
+
+  def image_types
+    %w(abstract animals business cats city food nightlife fashion people nature sports technics transport)
+  end
+
+end
+
+Lorem.new.run if $0 == __FILE__
